@@ -6,8 +6,34 @@ import { Ingredient, Prisma } from '@prisma/client';
 export class IngredientsService {
   constructor(private prisma: PrismaService) {}
 
-  findAll(): Promise<Ingredient[]> {
-    return this.prisma.ingredient.findMany();
+  count(): Promise<number> {
+    return this.prisma.ingredient.count();
+  }
+
+  async findAll({ skip, take, filter }): Promise<{
+    data: Ingredient[];
+    totalIngredients: number;
+  }> {
+    const ingredients = await this.prisma.ingredient.findMany({
+      skip,
+      take,
+      where: {
+        mainType: { contains: filter },
+      },
+      orderBy: {
+        name: 'asc',
+      },
+    });
+    // count total ingredients returned from the query
+    const totalIngredients = await this.prisma.ingredient.count({
+      where: {
+        mainType: { contains: filter },
+      },
+    });
+    return {
+      data: ingredients,
+      totalIngredients,
+    };
   }
 
   findOne(id: string): Promise<Ingredient> {
@@ -16,7 +42,19 @@ export class IngredientsService {
     });
   }
 
+  findManyByMainType(mainType: string): Promise<Ingredient[]> {
+    return this.prisma.ingredient.findMany({
+      where: { mainType },
+    });
+  }
+
   create(data: Prisma.IngredientCreateInput): Promise<Ingredient> {
     return this.prisma.ingredient.create({ data });
+  }
+
+  delete(id: string): Promise<Ingredient> {
+    return this.prisma.ingredient.delete({
+      where: { id },
+    });
   }
 }
