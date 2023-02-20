@@ -19,17 +19,8 @@ model Ingredient {
   name      String   @db.VarChar(255)
   kcal      Int      @default(0) @db.Integer
   mainType  String   @db.VarChar(255)
-  Meal      Meal?    @relation(fields: [mealUuid], references: [uuid])
-  mealUuid  String?
 }
 
-model Meal {
-  uuid        String       @id @default(uuid())
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  name        String       @db.VarChar(255)
-  ingredients Ingredient[]
-}
 
 model Post {
   id        Int      @id @default(autoincrement())
